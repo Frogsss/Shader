@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2487.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="en"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Shader&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body { margin: 0; overflow: hidden; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>canvas { width: 100%; height: 100%; display: block; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;canvas id="shaderCanvas"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script id="fragmentShader" type="x-shader/x-fragment"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>precision mediump float;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>uniform float iTime;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>uniform vec2 iResolution;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>vec3 palette(float t) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>vec3 a = vec3(0.5, 0.5, 0.5);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>vec3 b = vec3(0.5, 0.5, 0.5);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>vec3 c = vec3(1.0, 1.0, 1.0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>vec3 d = vec3(0.263, 0.416, 0.557);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>return a + b * cos(6.28318 * (c * t + d));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>void mainImage(out vec4 fragColor, in vec2 fragCoord) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>vec2 uv = (fragCoord * 2.0 - iResolution.xy) / iResolution.y;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>vec2 uv0 = uv;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>vec3 finalColor = vec3(0.0);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>float swirlIntensity = 5.0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>float swirlSpeed = 0.2;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (float i = 0.0; i &lt; 4.0; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>uv = fract(uv * 1.5) - 0.5;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>float angle = atan(uv.y, uv.x) + swirlSpeed * iTime + i * 0.5;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>float radius = length(uv);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>uv = vec2(cos(angle), sin(angle)) * radius;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>float d = length(uv) * exp(-length(uv0));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>vec3 col = palette(length(uv0) + i * 0.4 + iTime * 0.4);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>d = sin(d * 8.0 + iTime) / 8.0;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>d = abs(d);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>d = pow(0.01 / d, 1.2);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>finalColor += col * d;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>fragColor = vec4(finalColor, 1.0);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>void main() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>mainImage(gl_FragColor, gl_FragCoord.xy);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const canvas = document.getElementById('shaderCanvas');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const gl = canvas.getContext('webgl');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const vertexShaderSource = `</p>
+<p class="p1"><span class="Apple-converted-space">            </span>attribute vec4 a_position;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>void main() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>gl_Position = a_position;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const fragmentShaderSource = document.getElementById('fragmentShader').textContent;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createShader(gl, type, source) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const shader = gl.createShader(type);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gl.shaderSource(shader, source);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gl.compileShader(shader);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>console.error(gl.getShaderInfoLog(shader));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>gl.deleteShader(shader);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return null;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return shader;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const program = gl.createProgram();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>gl.attachShader(program, vertexShader);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>gl.attachShader(program, fragmentShader);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>gl.linkProgram(program);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>console.error(gl.getProgramInfoLog(program));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const positionAttributeLocation = gl.getAttribLocation(program, 'a_position');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const resolutionUniformLocation = gl.getUniformLocation(program, 'iResolution');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const timeUniformLocation = gl.getUniformLocation(program, 'iTime');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const positionBuffer = gl.createBuffer();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const positions = [</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-1, -1,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>1, -1,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-1, 1,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-1, 1,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>1, -1,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>1, 1,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function resizeCanvasToDisplaySize(canvas) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const displayWidth = canvas.clientWidth;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const displayHeight = canvas.clientHeight;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (canvas.width !== displayWidth || canvas.height !== displayHeight) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.width = displayWidth;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.height = displayHeight;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function render(time) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>resizeCanvasToDisplaySize(canvas);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>gl.clear(gl.COLOR_BUFFER_BIT);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gl.useProgram(program);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>gl.enableVertexAttribArray(positionAttributeLocation);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gl.uniform1f(timeUniformLocation, time * 0.001);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>gl.drawArrays(gl.TRIANGLES, 0, 6);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>requestAnimationFrame(render);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>requestAnimationFrame(render);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
